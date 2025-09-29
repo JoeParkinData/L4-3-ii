@@ -1,0 +1,120 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2822
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica;\f1\fnil\fcharset0 Menlo-Regular;}
+{\colortbl;\red255\green255\blue255;\red0\green0\blue0;}
+{\*\expandedcolortbl;;\csgray\c0;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww11520\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\fs24 \cf0 // The following generates subgroups of E_8(3) in its adjoint representation isomorphic to L_4(3) following feasible decomposition (ii).\
+// In order to run this, one must download the files from the repository A-Sylow-2-and-overgroups and run the code from ReadSyl2. We will also need the file "ElAb16s2BConj" from the repository Various-2-subgroups, and the functions chainloader and TwoGroupNormalizer associated to the paper of Rowley and Taylor\
+// Note that the eval Read lines may need altering according to file directory.\
+\
+\
+tryl:=PSL(4,3);\
+trylsub:=ElementaryAbelianSubgroups(tryl : OrderEqual:=16);\
+testiso:=Normalizer(tryl,trylsub[1]`subgroup);\
+Sixteens:=eval Read("ElAb16s2BConj");\
+\
+// we know we must run the following for i=2,3,4\
+X:=Sixteens[i] @@ phi;\
+repeat\
+  XNom:=TwoGroupNormalizer(G,X,chainstore,10,10);\
+  XNorm:=sub<GL(248,3)|XNom>;\
+until LMGOrder(XNorm) in  \{
+\f1\fs22 \cf2 \CocoaLigature0 150994944, 169114337280,660602880,460800000
+\f0\fs24 \cf0 \CocoaLigature1 \};
+\f1\fs22 \cf2 \CocoaLigature0 \
+\
+psi,perm:=PermutationRepresentation(XNorm);\
+Perm,Psi:=DegreeReduction(perm);\
+Xp:=X @ (psi*Psi);\
+PermSub:=Subgroups(Perm : OrderEqual:=1920);\
+Norms:=[];\
+for g in PermSub do\
+ if IsIsomorphic(g`subgroup,testiso) then\
+  if Set(Xp) subset Set(g`subgroup) then\
+   Append(~Norms,g`subgroup @@ (psi*Psi));\
+  end if;\
+ end if;\
+end for;
+\f0\fs24 \cf0 \CocoaLigature1 \
+\
+#Norms;\
+L43s:=[];\
+\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0 ords:=\{ 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 13, 20 \};
+\f0\fs24 \cf0 \CocoaLigature1 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 goodords:=
+\f1\fs22 \cf2 \CocoaLigature0 \{ 1, 2, 3, 4, 5, 6, 8, 9, 10, 12, 13, 18, 20, 24, 26, 40 \};
+\f0\fs24 \cf0 \CocoaLigature1 \
+\
+for XNorm in Norms do\
+  XNormSub:=Subgroups(XNorm : OrderEqual:=48);\
+  for g in XNormSub do\
+    if IsIsomorphic(g`subgroup,SmallGroup(48,49)) then\
+      if not Set(X) subset Set(g`subgroup) then\
+        Y:=g`subgroup;\
+  W:=NormalSubgroups(Y)[11]`subgroup;\
+  repeat\
+    WNom:=TwoGroupNormalizer(G,W,chainstore,10,10);\
+    WNorm:=sub<GL(248,3)|WNom>;\
+  until LMGOrder(WNorm) in \{
+\f1\fs22 \cf2 \CocoaLigature0 150994944, 169114337280,660602880,460800000
+\f0\fs24 \cf0 \CocoaLigature1 \};\
+  pli,Wperm:=PermutationRepresentation(WNorm);\
+  WPerm,Pli:=DegreeReduction(Wperm);\
+  Yp:=Y @ (pli*Pli);\
+  YpNorm:=Normalizer(WPerm,Yp);\
+  YpNormC:=ConjugacyClasses(YpNorm);\
+  YpNormC2:=[];\
+  for g in YpNormC do\
+    if g[1] eq 2 then\
+      if Dimension(Eigenspace(g[3] @@ (pli*Pli),1)) eq 120 then\
+        Append(~YpNormC2,g);\
+      end if;\
+    end if;\
+  end for;\
+\pard\tx560\tx1120\tx1680\tx2240\tx2800\tx3360\tx3920\tx4480\tx5040\tx5600\tx6160\tx6720\pardirnatural\partightenfactor0
+
+\f1\fs22 \cf2 \CocoaLigature0  twos120:=[];\
+ for g in YpNormC2 do\
+  temp:=[g[3]];\
+  repeat\
+   h:=Random(YpNorm);\
+   if not g[3]^h in temp then\
+    Append(~temp,g[3]^h);\
+   end if;\
+  until #temp eq g[2];\
+  for x in temp do\
+   Append(~twos120,x);\
+  end for;\
+ end for;\
+ #twos120;
+\f0\fs24 \cf0 \CocoaLigature1 \
+  goods:=[];\
+  for g in twos120 do\
+    trysub:=sub<GL(248,3)|XNorm,g @@ (pli*Pli)>;\
+      ord:=\{\};\
+      for holder:=1 to 5 do\
+        Include(~ord,Order(Random(trysub)));\
+      end for;\
+      if ord subset goodords then  \
+        if LMGOrder(trysub) mod Order(PSL(4,3)) eq 0 then\
+          Append(~goods,g);\
+          if IsIsomorphic(trysub,PSL(4,3)) then\
+           Append(~L43s,trysub);\
+           #L43s;\
+          end if;\
+        end if;\
+      end if;\
+    end for;\
+    #goods;\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0   end if;\
+end if;\
+end for;\
+end for;\
+}
